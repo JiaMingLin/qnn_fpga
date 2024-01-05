@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import torch.nn.init
 from torch.nn.modules.lazy import LazyModuleMixin
 from torch.nn.modules.module import Module
-from utils import _single, _pair, _triple, _reverse_repeat_tuple
+from torch.nn.modules.utils import _single, _pair, _triple, _reverse_repeat_tuple
 from torch._torch_docs import reproducibility_notes
 
 from torch.nn.common_types import _size_1_t, _size_2_t, _size_3_t
