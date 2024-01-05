@@ -22,7 +22,7 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(128, 10)
 
     def sign(self, x):
-        tmp = torch.ones(x.shape)
+        tmp = torch.ones(x.shape).cuda()
         tmp[x<0] = -1
         return tmp
 

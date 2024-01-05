@@ -169,7 +169,7 @@ class _ConvNd(Module):
         return s.format(**self.__dict__)
 
     def sign(self, x):
-        tmp = torch.ones(x.shape)
+        tmp = torch.ones(x.shape).cuda()
         tmp[x<0] = -1
         return tmp
 
