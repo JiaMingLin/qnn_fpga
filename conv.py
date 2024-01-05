@@ -4,18 +4,15 @@ import warnings
 import torch
 from torch import Tensor
 from torch.nn.parameter import Parameter, UninitializedParameter
-# from .. import functional as F
 import torch.nn.functional as F
-# from .. import init
 import torch.nn.init
-# from .lazy import LazyModuleMixin
-# from .module import Module
+from torch.nn.modules.lazy import LazyModuleMixin
+from torch.nn.modules.module import Module
 from utils import _single, _pair, _triple, _reverse_repeat_tuple
 from torch._torch_docs import reproducibility_notes
 
-from common_types import _size_1_t, _size_2_t, _size_3_t
+from torch.nn.common_types import _size_1_t, _size_2_t, _size_3_t
 from typing import Optional, List, Tuple, Union
-
 
 class Conv2d(_ConvNd):
 
