@@ -168,6 +168,11 @@ class _ConvNd(Module):
             s += ', padding_mode={padding_mode}'
         return s.format(**self.__dict__)
 
+    def sign(self, x):
+        tmp = torch.ones(x.shape)
+        tmp[x<0] = -1
+        return tmp
+
     def __setstate__(self, state):
         super().__setstate__(state)
         if not hasattr(self, 'padding_mode'):
@@ -449,11 +454,13 @@ class Conv2d(_ConvNd):
             False, _pair(0), groups, bias, padding_mode, **factory_kwargs)
 
     def _conv_forward(self, input: Tensor, weight: Tensor, bias: Optional[Tensor]):
+
+        b_weight = self.sign(weight)
         if self.padding_mode != 'zeros':
             return F.conv2d(F.pad(input, self._reversed_padding_repeated_twice, mode=self.padding_mode),
-                            weight, bias, self.stride,
+                            b_weight, bias, self.stride,
                             _pair(0), self.dilation, self.groups)
-        return F.conv2d(input, weight, bias, self.stride,
+        return F.conv2d(input, b_weight, bias, self.stride,
                         self.padding, self.dilation, self.groups)
 
     def forward(self, input: Tensor) -> Tensor:

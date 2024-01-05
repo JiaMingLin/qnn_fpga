@@ -21,13 +21,20 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(9216, 128)
         self.fc2 = nn.Linear(128, 10)
 
+    def sign(self, x):
+        tmp = torch.ones(x.shape)
+        tmp[x<0] = -1
+        return tmp
+
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
-        x = F.relu(x)
+        # x = F.relu(x)
+        x = self.sign(x)
         x = self.conv2(x)
         x = self.bn2(x)
-        x = F.relu(x)
+        # x = F.relu(x)
+        x = self.sign(x)
         x = F.max_pool2d(x, 2)
         x = self.dropout1(x)
         x = torch.flatten(x, 1)
