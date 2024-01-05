@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 from torch.nn.parameter import Parameter, UninitializedParameter
 import torch.nn.functional as F
-import torch.nn.init
+import torch.nn.init as init
 from torch.nn.modules.lazy import LazyModuleMixin
 from torch.nn.modules.module import Module
 from torch.nn.modules.utils import _single, _pair, _triple, _reverse_repeat_tuple
