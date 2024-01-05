@@ -455,12 +455,12 @@ class Conv2d(_ConvNd):
 
     def _conv_forward(self, input: Tensor, weight: Tensor, bias: Optional[Tensor]):
 
-        b_weight = self.sign(weight)
+        # weight = self.sign(weight)
         if self.padding_mode != 'zeros':
             return F.conv2d(F.pad(input, self._reversed_padding_repeated_twice, mode=self.padding_mode),
-                            b_weight, bias, self.stride,
+                            weight, bias, self.stride,
                             _pair(0), self.dilation, self.groups)
-        return F.conv2d(input, b_weight, bias, self.stride,
+        return F.conv2d(input, weight, bias, self.stride,
                         self.padding, self.dilation, self.groups)
 
     def forward(self, input: Tensor) -> Tensor:
