@@ -7,6 +7,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from conv import Conv2d
+from linear import Linear
 torch.manual_seed(0)
 
 class Net(nn.Module):
@@ -18,8 +19,8 @@ class Net(nn.Module):
         self.bn2 = nn.BatchNorm2d(64)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(9216, 128)
-        self.fc2 = nn.Linear(128, 10)
+        self.fc1 = Linear(9216, 128)
+        self.fc2 = Linear(128, 10)
         self.hardtanh = nn.Hardtanh()
 
     def sign(self, x):
