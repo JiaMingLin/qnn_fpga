@@ -173,7 +173,7 @@ def main():
     print("training using "+str(device))
     model = QuantNet().to(device)
     # optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
-    optim.Adam(model.parameters(), lr=args.lr, weight_decay=0)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=0)
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
