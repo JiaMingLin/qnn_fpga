@@ -37,7 +37,7 @@ class QuantNet(Module):
         
         self.quant_identity = QuantIdentity(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
         self.quant_hardtanh = QuantHardTanh(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
-        self.dropout = nn.Dropout(p=0.2)
+        self.dropout = nn.Dropout(p=0.0)
 
     def forward(self, x):
         x = torch.flatten(x, start_dim=1)
@@ -71,9 +71,18 @@ def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
+
+        # target = target.unsqueeze(1)
+        # target_onehot = torch.Tensor(target.size(0), 10).to(device, non_blocking=True)
+        # target_onehot.fill_(-1)
+        # target_onehot.scatter_(1, target, 1)
+        # target = target.squeeze()
+        # target_var = target_onehot
+
         optimizer.zero_grad()
         output = model(data)
         loss = F.nll_loss(output, target)
+
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
@@ -163,7 +172,8 @@ def main():
 
     print("training using "+str(device))
     model = QuantNet().to(device)
-    optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+    # optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
+    optim.Adam(model.parameters(), lr=args.lr, weight_decay=0)
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
