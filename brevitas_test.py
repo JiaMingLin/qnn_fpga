@@ -13,7 +13,7 @@ torch.manual_seed(0)
 from torch.nn import Module
 
 # import brevitas.nn as qnn
-from brevitas.nn import QuantLinear, QuantHardTanh
+from brevitas.nn import QuantLinear, QuantHardTanh, QuantIdentity
 from brevitas.quant import Int8Bias as BiasQuant
 
 from brevitas.core.quant.binary import BinaryQuant
