@@ -119,8 +119,9 @@ class Linear(Module):
             tmp[x<0] = -1
             return tmp
 
-        self.weight = sign(self.weight)
+        # self.weight = sign(self.weight)
 
+        # return F.linear(input, sign(self.weight), self.bias)
         return F.linear(input, self.weight, self.bias)
 
     def extra_repr(self) -> str:
