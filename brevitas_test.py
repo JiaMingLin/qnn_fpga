@@ -44,7 +44,7 @@ class QuantNet(Module):
         x = self.fc2(x)
         x = self.bn2(x)
         x = self.hardtanh(x)
-
+        print(x.is_cuda)
         x = self.fc3(x)
         x = self.bn3(x)
         x = self.hardtanh(x)
@@ -150,7 +150,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
-    print("training using "+device)
+    print("training using "+str(device))
     model = QuantNet().to(device)
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
