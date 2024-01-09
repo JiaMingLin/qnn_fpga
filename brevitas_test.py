@@ -15,7 +15,7 @@ from torch.nn import Module
 # import brevitas.nn as qnn
 from brevitas.nn import QuantLinear, QuantHardTanh
 from brevitas.quant import Int8Bias as BiasQuant
-from brevitas.quant import SignedBinaryWeightPerTensorConst
+from brevitas.quant import SignedBinaryWeightPerTensorConst, SignedBinaryActPerTensorConst
 
 from brevitas.core.quant.binary import BinaryQuant
 from brevitas.core.scaling import ConstScaling
@@ -45,7 +45,7 @@ class QuantNet(Module):
         x = self.fc2(x)
         x = self.bn2(x)
         x = self.quant_hardtanh(x)
-        
+
         x = self.fc3(x)
         x = self.bn3(x)
         x = self.quant_hardtanh(x)
