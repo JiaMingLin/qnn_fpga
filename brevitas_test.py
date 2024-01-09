@@ -12,7 +12,7 @@ torch.manual_seed(0)
 
 from torch.nn import Module
 
-import brevitas.nn as qnn
+# import brevitas.nn as qnn
 from brevitas.nn import QuantLinear
 from brevitas.quant import Int8Bias as BiasQuant
 from brevitas.quant import SignedBinaryWeightPerTensorConst
