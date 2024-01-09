@@ -26,13 +26,13 @@ class QuantNet(Module):
     def __init__(self):
         super(QuantNet, self).__init__()
 
-        self.fc1 = QuantLinear(784, 2048, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn1 = nn.BatchNorm1d(2048)
-        self.fc2 = QuantLinear(2048, 2048, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn2 = nn.BatchNorm1d(2048)
-        self.fc3 = QuantLinear(2048, 2048, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn3 = nn.BatchNorm1d(2048)
-        self.fc4 = QuantLinear(2048, 10, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
+        self.fc1 = QuantLinear(784, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
+        self.bn1 = nn.BatchNorm1d(1024)
+        self.fc2 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
+        self.bn2 = nn.BatchNorm1d(1024)
+        self.fc3 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
+        self.bn3 = nn.BatchNorm1d(1024)
+        self.fc4 = QuantLinear(1024, 10, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
         self.bn4 = nn.BatchNorm1d(10)
         
         self.quant_identity = QuantIdentity(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
