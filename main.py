@@ -21,7 +21,7 @@ class Net(nn.Module):
         self.fc3 = Linear(2048, 2048)
         self.bn3 = nn.BatchNorm1d(2048)
         self.fc4 = Linear(2048, 10)
-        self.bn3 = nn.BatchNorm1d(10)
+        self.bn4 = nn.BatchNorm1d(10)
         self.hardtanh = nn.Hardtanh()
 
     def sign(self, x):
