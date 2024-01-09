@@ -31,7 +31,7 @@ class Net(nn.Module):
 
     def forward(self, x):
 
-        x = torch.flatten(x)
+        x = torch.flatten(x, start_dim=1)
 
         x = self.fc1(x)
         x = self.bn1(x)
