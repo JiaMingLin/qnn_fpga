@@ -13,7 +13,7 @@ torch.manual_seed(0)
 from torch.nn import Module
 
 # import brevitas.nn as qnn
-from brevitas.nn import QuantLinear
+from brevitas.nn import QuantLinear, QuantHardTanh
 from brevitas.quant import Int8Bias as BiasQuant
 from brevitas.quant import SignedBinaryWeightPerTensorConst
 
@@ -32,21 +32,23 @@ class QuantNet(Module):
         self.bn3 = nn.BatchNorm1d(2048)
         self.fc4 = QuantLinear(2048, 10, weight_quant=SignedBinaryWeightPerTensorConst, bias=False)
         self.bn4 = nn.BatchNorm1d(10)
-        self.hardtanh = nn.Hardtanh()
+        
+        self.quant_hardtanh = QuantHardTanh(act_quant=SignedBinaryActPerTensorConst, return_quant_tensor = True)
 
     def forward(self, x):
         x = torch.flatten(x, start_dim=1)
 
         x = self.fc1(x)
         x = self.bn1(x)
-        x = self.hardtanh(x)
+        x = self.quant_hardtanh(x)
 
         x = self.fc2(x)
         x = self.bn2(x)
-        x = self.hardtanh(x)
+        x = self.quant_hardtanh(x)
+        
         x = self.fc3(x)
         x = self.bn3(x)
-        x = self.hardtanh(x)
+        x = self.quant_hardtanh(x)
 
         x = self.fc4(x)
         x = self.bn4(x)
