@@ -14,13 +14,13 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.fc1 = Linear(2048, 784)
+        self.fc1 = Linear(784, 2048)
         self.bn1 = nn.BatchNorm1d(2048)
         self.fc2 = Linear(2048, 2048)
         self.bn2 = nn.BatchNorm1d(2048)
         self.fc3 = Linear(2048, 2048)
         self.bn3 = nn.BatchNorm1d(2048)
-        self.fc4 = Linear(10, 2048)
+        self.fc4 = Linear(2048, 10)
         self.bn3 = nn.BatchNorm1d(10)
         self.hardtanh = nn.Hardtanh()
 
