@@ -44,7 +44,6 @@ class QuantNet(Module):
         x = self.fc2(x)
         x = self.bn2(x)
         x = self.hardtanh(x)
-        print(x.is_cuda)
         x = self.fc3(x)
         x = self.bn3(x)
         x = self.hardtanh(x)
