@@ -19,8 +19,8 @@ from brevitas.quant import Int8Bias as BiasQuant
 from brevitas.core.quant.binary import BinaryQuant
 from brevitas.core.scaling import ConstScaling
 
-from .common import CommonActQuant
-from .common import CommonWeightQuant
+from common import CommonActQuant
+from common import CommonWeightQuant
 
 class QuantNet(Module):
     def __init__(self):
