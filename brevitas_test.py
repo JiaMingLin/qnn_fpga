@@ -21,19 +21,27 @@ from brevitas.core.scaling import ConstScaling
 
 from common import CommonActQuant
 from common import CommonWeightQuant
+from shift_batchnorm import ShiftBatchNorm
 
 class QuantNet(Module):
     def __init__(self):
         super(QuantNet, self).__init__()
 
         self.fc1 = QuantLinear(784, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn1 = nn.BatchNorm1d(1024)
+        # self.bn1 = nn.BatchNorm1d(1024)
+        self.bn1 = ShiftBatchNorm()
+
         self.fc2 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn2 = nn.BatchNorm1d(1024)
+        # self.bn2 = nn.BatchNorm1d(1024)
+        self.bn2 = ShiftBatchNorm()
+
         self.fc3 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn3 = nn.BatchNorm1d(1024)
+        # self.bn3 = nn.BatchNorm1d(1024)
+        self.bn3 = ShiftBatchNorm()
+
         self.fc4 = QuantLinear(1024, 10, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn4 = nn.BatchNorm1d(10)
+        # self.bn4 = nn.BatchNorm1d(10)
+        self.bn4 = ShiftBatchNorm()
         
         self.quant_identity = QuantIdentity(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
         self.quant_hardtanh = QuantHardTanh(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
