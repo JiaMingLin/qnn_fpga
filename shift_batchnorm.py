@@ -1,23 +1,24 @@
 import torch.nn as nn
 import torch
 class ShiftBatchNorm(nn.Module):
-    def __init__(self, momentum=0.1):
+    def __init__(self, size, momentum=0.1):
         super().__init__()
 
         self.epsilon = 1E-5     # Same as PyTorch
 
         # Trainable parameters
-        self.beta = torch.nn.Parameter(data=torch.tensor(0.0))
-        self.gamma = torch.nn.Parameter(data=torch.tensor(1.0))
+        self.size = size
+        self.beta = torch.nn.Parameter(data=torch.zeros(size))
+        self.gamma = torch.nn.Parameter(data=torch.ones(size))
         self.register_parameter('beta', self.beta)
         self.register_parameter('gamma', self.gamma)
-        self.running_mean = 0
-        self.running_var = 0
+        self.running_mean = torch.zeros(size)
+        self.running_var = torch.ones(size)
         self.momentum = momentum
 
     def forward(self, x):
-        batch_mean = torch.mean(x)
-        batch_var = torch.var(x, unbiased=False)
+        batch_mean = torch.mean(x, dim=1)
+        batch_var = torch.var(x, unbiased=False, dim=1)
         
         def ap2(x):
             return torch.sign(x) * (2**(torch.round(torch.log2(torch.abs(x)))))
