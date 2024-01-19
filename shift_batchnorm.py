@@ -12,8 +12,8 @@ class ShiftBatchNorm(nn.Module):
         self.gamma = torch.nn.Parameter(data=torch.ones(size))
         self.register_parameter('beta', self.beta)
         self.register_parameter('gamma', self.gamma)
-        self.running_mean = torch.zeros(size)
-        self.running_var = data=torch.ones(size)
+        self.running_mean = torch.zeros(size).cuda()
+        self.running_var = torch.ones(size).cuda()
         self.register_buffer('moving_mean', self.running_mean)
         self.register_buffer('moving_var', self.running_var)
         self.momentum = momentum
