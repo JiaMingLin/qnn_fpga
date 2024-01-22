@@ -8,8 +8,8 @@ class ShiftBatchNorm(nn.Module):
 
         # Trainable parameters
         self.size = size
-        self.register_parameter('beta', torch.nn.Parameter(data=torch.zeros(size)))
-        self.register_parameter('gamma', torch.nn.Parameter(data=torch.ones(size)))
+        self.register_parameter('weight', torch.nn.Parameter(data=torch.ones(size)))
+        self.register_parameter('bias', torch.nn.Parameter(data=torch.zeros(size)))
         self.register_buffer('running_mean', torch.zeros(size))
         self.register_buffer('running_var', torch.ones(size))
         self.momentum = momentum
@@ -29,9 +29,9 @@ class ShiftBatchNorm(nn.Module):
 
             x_hat = (x - batch_mean) / ap2(torch.sqrt(batch_var + self.epsilon))
         
-            result = x_hat * ap2(self.gamma) + self.beta
+            result = x_hat * ap2(self.weight) + self.bias
         else: # inferencing
             x_hat = (x - self.running_mean) / ap2(torch.sqrt(self.running_var + self.epsilon))
-            result = x_hat * ap2(self.gamma) + self.beta
+            result = x_hat * ap2(self.weight) + self.bias
 
         return result
