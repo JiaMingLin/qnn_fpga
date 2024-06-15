@@ -29,9 +29,7 @@ class LSTMCell(nn.Module):
     def forward(self, x, hidden):
 
         hx, cx = hidden
-        
         x = x.view(-1, x.size(1))
-        
         gates = self.x2h(x) + self.h2h(hx)
         forget_gate, input_gate, cell_gate, out_gate = gates.chunk(4, 1)
         
@@ -76,7 +74,7 @@ class LSTMModel(nn.Module):
         if torch.cuda.is_available():
             c0 = Tensor(torch.zeros(self.layer_dim, x.size(0), self.hidden_dim).cuda())
         else:
-            c0 = Tensor(torch.zeros(self.layer_dim, x.size(0), hidden_dim))
+            c0 = Tensor(torch.zeros(self.layer_dim, x.size(0), self.hidden_dim))
 
                     
        

@@ -3,11 +3,13 @@ import torch.utils.data as data
 import os
 import os.path
 import numpy as np
-from numpy.random import randint
 
 class EGMDataset(data.Dataset):
-    def __init__(self, train = True):
-        self.parent_dir = 'processed'
+    def __init__(self, train = True, dataset_dir = None):
+        self.processed_data = dataset_dir
+        if dataset_dir is None:
+            dataset_dir = os.path.join(os.getcwd(), 'data', 'EMG')
+            self.processed_data = os.path.join(dataset_dir, 'processed')
         self.train = train
         self.train_val_split = [30, 20]
         self.gesture_dataset = self.read_all_npy()
@@ -15,8 +17,8 @@ class EGMDataset(data.Dataset):
     
     def read_all_npy(self):
         g_sample_list = []
-        for g_npy in os.listdir('processed'):
-            g_sample_list.append(np.load(os.path.join('processed', g_npy)))
+        for g_npy in os.listdir(self.processed_data):
+            g_sample_list.append(np.load(os.path.join(self.processed_data, g_npy)))
 
         using_data = np.array(g_sample_list)[:, :self.train_val_split[0], :, :]
         if not self.train:
@@ -37,12 +39,14 @@ class EGMDataset(data.Dataset):
 
     def __getitem__(self, index):
         (gesture_data, label) = self.gesture_dataset[index]
+
+        gesture_data = gesture_data.astype(np.float32)
         
-        return gesture_data, label
+        return np.transpose(gesture_data), label
 
 
 if __name__ == "__main__":
-    ds = EGMDataset()
+    ds = EGMDataset(dataset_dir='processed')
     sample, label = ds.__getitem__(4)
     print(sample.shape, label)
     

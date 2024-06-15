@@ -93,6 +93,7 @@ def main():
             #######################
             #  USE GPU FOR MODEL  #
             #######################
+
             if torch.cuda.is_available():
                 if len(batch_samples.shape) == 4:
                     batch_samples = batch_samples.view(-1, seq_dim, input_dim)
@@ -100,18 +101,15 @@ def main():
                 labels = labels.cuda()
             else:
               batch_samples = batch_samples.view(-1, seq_dim, input_dim)
-              labels = labels
-          
+              labels = labels          
             # Clear gradients w.r.t. parameters
             optimizer.zero_grad()
          
             # Forward pass to get output/logits
-            # outputs.size() --> 100, 10
             outputs = model(batch_samples)
 
             # Calculate Loss: softmax --> cross entropy loss
             loss = criterion(outputs, labels)
-            print(labels)
 
             if torch.cuda.is_available():
                 loss.cuda()
