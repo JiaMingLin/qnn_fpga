@@ -51,22 +51,22 @@ class QuantNet(Module):
         x = torch.flatten(x, start_dim=1)
 
         x = self.quant_identity(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc1(x)
         x = self.bn1(x)
         x = self.quant_hardtanh(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc2(x)
         x = self.bn2(x)
         x = self.quant_hardtanh(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc3(x)
         x = self.bn3(x)
         x = self.quant_hardtanh(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc4(x)
         x = self.bn4(x)
