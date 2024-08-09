@@ -105,7 +105,6 @@ def main():
             optimizer.zero_grad()
          
             # Forward pass to get output/logits
-            # outputs.size() --> 100, 10
             outputs = model(batch_samples)
 
             # Calculate Loss: softmax --> cross entropy loss

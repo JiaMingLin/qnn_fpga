@@ -1,4 +1,7 @@
+__pycache__
 __pycache__/*
+*_checkpoints
+.ipynb_checkpoints
 .ipynb_checkpoints/*
 *.npy
 *.txt

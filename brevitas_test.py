@@ -6,8 +6,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
-from conv import Conv2d
-from linear import Linear
+#from conv import Conv2d
+#from linear import Linear
 torch.manual_seed(0)
 
 from torch.nn import Module
@@ -28,20 +28,20 @@ class QuantNet(Module):
         super(QuantNet, self).__init__()
 
         self.fc1 = QuantLinear(784, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        # self.bn1 = nn.BatchNorm1d(1024)
-        self.bn1 = ShiftBatchNorm(1024)
+        self.bn1 = nn.BatchNorm1d(1024)
+        #self.bn1 = ShiftBatchNorm(1024)
 
         self.fc2 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        # self.bn2 = nn.BatchNorm1d(1024)
-        self.bn2 = ShiftBatchNorm(1024)
+        self.bn2 = nn.BatchNorm1d(1024)
+        #self.bn2 = ShiftBatchNorm(1024)
 
         self.fc3 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        # self.bn3 = nn.BatchNorm1d(1024)
-        self.bn3 = ShiftBatchNorm(1024)
+        self.bn3 = nn.BatchNorm1d(1024)
+        #self.bn3 = ShiftBatchNorm(1024)
 
         self.fc4 = QuantLinear(1024, 10, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        # self.bn4 = nn.BatchNorm1d(10)
-        self.bn4 = ShiftBatchNorm(10)
+        self.bn4 = nn.BatchNorm1d(10)
+        #self.bn4 = ShiftBatchNorm(10)
         
         self.quant_identity = QuantIdentity(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
         self.quant_hardtanh = QuantHardTanh(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
@@ -51,22 +51,22 @@ class QuantNet(Module):
         x = torch.flatten(x, start_dim=1)
 
         x = self.quant_identity(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc1(x)
         x = self.bn1(x)
         x = self.quant_hardtanh(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc2(x)
         x = self.bn2(x)
         x = self.quant_hardtanh(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc3(x)
         x = self.bn3(x)
         x = self.quant_hardtanh(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
 
         x = self.fc4(x)
         x = self.bn4(x)
@@ -123,13 +123,13 @@ def test(model, device, test_loader):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=14, metavar='N',
+    parser.add_argument('--epochs', type=int, default=100, metavar='N',
                         help='number of epochs to train (default: 14)')
-    parser.add_argument('--lr', type=float, default=1.0, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.1, metavar='LR',
                         help='learning rate (default: 1.0)')
     parser.add_argument('--gamma', type=float, default=0.7, metavar='M',
                         help='Learning rate step gamma (default: 0.7)')
@@ -161,7 +161,7 @@ def main():
     train_kwargs = {'batch_size': args.batch_size}
     test_kwargs = {'batch_size': args.test_batch_size}
     if use_cuda:
-        cuda_kwargs = {'num_workers': 1,
+        cuda_kwargs = {'num_workers': 6,
                        'pin_memory': True,
                        'shuffle': True}
         train_kwargs.update(cuda_kwargs)
@@ -190,7 +190,7 @@ def main():
         scheduler.step()
 
     if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
+        torch.save(model.state_dict(), "mnist_bnn_mlp.pt")
 
 
 if __name__ == '__main__':

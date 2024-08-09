@@ -3,7 +3,6 @@ import torch.utils.data as data
 import os
 import os.path
 import numpy as np
-from numpy.random import randint
 
 class EGMDataset(data.Dataset):
     def __init__(self, path, train = True):
@@ -44,7 +43,7 @@ class EGMDataset(data.Dataset):
 
 
 if __name__ == "__main__":
-    ds = EGMDataset()
+    ds = EGMDataset(dataset_dir='processed')
     sample, label = ds.__getitem__(4)
     print(sample.shape, label)
     
