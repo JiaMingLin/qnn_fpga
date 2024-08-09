@@ -6,8 +6,8 @@ import numpy as np
 from numpy.random import randint
 
 class EGMDataset(data.Dataset):
-    def __init__(self, train = True):
-        self.parent_dir = 'processed'
+    def __init__(self, path, train = True):
+        self.parent_dir = os.path.join(path, 'processed')
         self.train = train
         self.train_val_split = [30, 20]
         self.gesture_dataset = self.read_all_npy()
@@ -15,12 +15,14 @@ class EGMDataset(data.Dataset):
     
     def read_all_npy(self):
         g_sample_list = []
-        for g_npy in os.listdir('processed'):
-            g_sample_list.append(np.load(os.path.join('processed', g_npy)))
+        for g_npy in os.listdir(self.parent_dir):
+            g_sample_list.append(np.load(os.path.join(self.parent_dir, g_npy)))
 
         using_data = np.array(g_sample_list)[:, :self.train_val_split[0], :, :]
         if not self.train:
             using_data = np.array(g_sample_list)[:, self.train_val_split[0]: , :, :]
+        
+        using_data = using_data.astype('float32')
         return using_data
     
     def flatten(self, data):
@@ -37,7 +39,7 @@ class EGMDataset(data.Dataset):
 
     def __getitem__(self, index):
         (gesture_data, label) = self.gesture_dataset[index]
-        
+        gesture_data = np.transpose(gesture_data)
         return gesture_data, label
 
 
