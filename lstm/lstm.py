@@ -17,12 +17,14 @@ weight_quantizer = {'int8': Int8WeightPerTensorFloat,
                     'int4': Int4WeightPerTensorFloat,
                     'int2': SignedTernaryWeightPerTensorConst}
 
-act_quantizer = {'int8': Int8ActPerTensorFloat,
-                 'uint8': Uint8ActPerTensorFloat,
-                    'int4': Int4ActPerTensorFloat,
-                    'uint4': Uint4ActPerTensorFloat,
-                    'int2': SignedTernaryActPerTensorConst,
-                    'uint2': SignedTernaryActPerTensorConst}
+act_quantizer = {
+                'int16': Int16ActPerTensorFloat,
+                'int8': Int8ActPerTensorFloat,
+                'uint8': Uint8ActPerTensorFloat,
+                'int4': Int4ActPerTensorFloat,
+                'uint4': Uint4ActPerTensorFloat,
+                'int2': SignedTernaryActPerTensorConst,
+                'uint2': SignedTernaryActPerTensorConst}
 
 class QuantLSTMCell(nn.Module):
     def __init__(self, input_size, hidden_size, bias=True,
@@ -161,7 +163,7 @@ class LSTMModel(nn.Module):
 
 class SeqModel(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=1,
-                 quant = False, w_bit=8, a_bit=8, i_bit=8, o_bit=8, r_bit=8,
+                 quant = False, w_bit=8, acc_bit=16, a_bit=8, i_bit=8, o_bit=8, r_bit=8,
                  no_brevitas = True):
         super(SeqModel, self).__init__()
         self.hidden_size = hidden_size
@@ -174,12 +176,12 @@ class SeqModel(nn.Module):
                 sigmoid_quant = act_quantizer['uint{}'.format(a_bit)],
                 tanh_quant = act_quantizer['int{}'.format(a_bit)],
                 cell_state_quant = act_quantizer['int{}'.format(r_bit)],
-                gate_acc_quant = NoneActQuant, #act_quantizer['int{}'.format(a_bit)],
+                gate_acc_quant = act_quantizer['int{}'.format(acc_bit)]
             )
             self.fc = QuantLinear(hidden_size, output_size, 
                                 weight_quant=weight_quantizer['int{}'.format(w_bit)]
                                 )
-            self.quant_identity = QuantIdentity(act_quant=act_quantizer['int{}'.format(i_bit)], return_quant_tensor = True)
+            self.input_quant = QuantIdentity(act_quant=act_quantizer['int{}'.format(i_bit)], return_quant_tensor = True)
 
         else:
             self.rnn = QuantLSTM(
@@ -204,8 +206,7 @@ class SeqModel(nn.Module):
 
     def forward(self, x):
         if self.quant:
-            x = self.quant_identity(x)
-
+            x = self.input_quant(x)
         outputs, (h_n, _) = self.rnn(x)
         outputs = outputs[:,-1,:]
         # outputs = self.relu(outputs)

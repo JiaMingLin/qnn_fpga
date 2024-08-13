@@ -50,6 +50,13 @@ class PerTensorFloatScaling4bit(ExtendedInjector):
     restrict_scaling_type = RestrictValueType.FP
     bit_width = 4
 
+class PerTensorFloatScaling16bit(ExtendedInjector):
+    """
+    """
+    scaling_per_output_channel = False
+    restrict_scaling_type = RestrictValueType.FP
+    bit_width = 16
+
 class Int4WeightPerTensorFloat(NarrowIntQuant,
                                MaxStatsScaling,
                                PerTensorFloatScaling4bit,
@@ -70,6 +77,20 @@ class Int4ActPerTensorFloat(IntQuant,
                             ActQuantSolver):
     """
     4-bit per-tensor signed int activations quantizer with learned floating-point scale factor
+    initialized from runtime statistics.
+
+    Examples:
+        >>> from brevitas.nn import QuantIdentity
+        >>> act = QuantIdentity(act_quant=Int4ActPerTensorFloat)
+    """
+    pass
+
+class Int16ActPerTensorFloat(IntQuant,
+                            ParamFromRuntimePercentileScaling,
+                            PerTensorFloatScaling16bit,
+                            ActQuantSolver):
+    """
+    16-bit per-tensor signed int activations quantizer with learned floating-point scale factor
     initialized from runtime statistics.
 
     Examples:
