@@ -23,6 +23,9 @@ def main():
     num_epochs = args.epoch
     hidden_size = args.hidden
     num_layers = args.num_layers
+
+    learning_rate = args.learning_rate
+
     quant = args.quant
     w_bit = args.w_bit
     a_bit = args.a_bit
@@ -86,7 +89,6 @@ def main():
     '''
     STEP 6: INSTANTIATE OPTIMIZER CLASS
     '''
-    learning_rate = 0.00025
  
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 

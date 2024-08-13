@@ -161,24 +161,25 @@ class LSTMModel(nn.Module):
 
 class SeqModel(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=1,
-                 quant = False, w_bit=8, a_bit=8, i_bit=8, r_bit=8,
+                 quant = False, w_bit=8, a_bit=8, i_bit=8, o_bit=8, r_bit=8,
                  no_brevitas = True):
         super(SeqModel, self).__init__()
         self.hidden_size = hidden_size
-
+        self.quant = quant
         if quant:
             self.rnn = QuantLSTM(
                 input_size, hidden_size, num_layers, batch_first=True,
                 weight_quant = weight_quantizer['int{}'.format(w_bit)],
-                io_quant = act_quantizer['int{}'.format(i_bit)],
-                gate_acc_quant = act_quantizer['int{}'.format(a_bit)],
+                io_quant = act_quantizer['int{}'.format(o_bit)],
                 sigmoid_quant = act_quantizer['uint{}'.format(a_bit)],
                 tanh_quant = act_quantizer['int{}'.format(a_bit)],
-                cell_state_quant = act_quantizer['int{}'.format(r_bit)]
+                cell_state_quant = act_quantizer['int{}'.format(r_bit)],
+                gate_acc_quant = NoneActQuant, #act_quantizer['int{}'.format(a_bit)],
             )
             self.fc = QuantLinear(hidden_size, output_size, 
                                 weight_quant=weight_quantizer['int{}'.format(w_bit)]
                                 )
+            self.quant_identity = QuantIdentity(act_quant=act_quantizer['int{}'.format(i_bit)], return_quant_tensor = True)
 
         else:
             self.rnn = QuantLSTM(
@@ -198,8 +199,13 @@ class SeqModel(nn.Module):
         if no_brevitas:
             self.rnn = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
             self.fc = nn.Linear(hidden_size, output_size)
+        
+        
 
     def forward(self, x):
+        if self.quant:
+            x = self.quant_identity(x)
+
         outputs, (h_n, _) = self.rnn(x)
         outputs = outputs[:,-1,:]
         # outputs = self.relu(outputs)
