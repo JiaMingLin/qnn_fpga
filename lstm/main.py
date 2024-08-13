@@ -23,10 +23,13 @@ def main():
     num_epochs = args.epoch
     hidden_size = args.hidden
     num_layers = args.num_layers
+    learning_rate = args.learning_rate
     quant = args.quant
     w_bit = args.w_bit
+    acc_bit = args.acc_bit
     a_bit = args.a_bit
     i_bit = args.i_bit
+    o_bit = args.o_bit
     r_bit = args.r_bit
     no_brevitas = args.no_brevitas
 
@@ -68,7 +71,8 @@ def main():
     '''
     model = SeqModel(input_size, hidden_size, output_size = output_size,
                       num_layers = num_layers,
-                      quant = quant, w_bit=w_bit, a_bit=a_bit, i_bit=i_bit, r_bit=r_bit,
+                      quant = quant, 
+                      w_bit=w_bit, a_bit=a_bit, i_bit=i_bit, o_bit=o_bit, r_bit=r_bit, acc_bit=acc_bit,
                       no_brevitas = no_brevitas)
 
     #######################
@@ -86,7 +90,6 @@ def main():
     '''
     STEP 6: INSTANTIATE OPTIMIZER CLASS
     '''
-    learning_rate = 0.00025
  
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
