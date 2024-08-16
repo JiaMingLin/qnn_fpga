@@ -181,7 +181,6 @@ class SeqModel(nn.Module):
             self.fc = QuantLinear(hidden_size, output_size, 
                                 weight_quant=weight_quantizer['int{}'.format(w_bit)]
                                 )
-            self.input_quant = QuantIdentity(act_quant=act_quantizer['int{}'.format(i_bit)], return_quant_tensor = True)
 
         else:
             self.rnn = QuantLSTM(
@@ -203,8 +202,6 @@ class SeqModel(nn.Module):
             self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        if self.quant:
-            x = self.input_quant(x)
         outputs, (h_n, _) = self.rnn(x)
         outputs = outputs[:,-1,:]
         # outputs = self.relu(outputs)
