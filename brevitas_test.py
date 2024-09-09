@@ -14,37 +14,37 @@ from torch.nn import Module
 
 # import brevitas.nn as qnn
 from brevitas.nn import QuantLinear, QuantHardTanh, QuantIdentity
+from brevitas.nn import QuantSigmoid
+from brevitas.nn import QuantTanh
 from brevitas.quant import Int8Bias as BiasQuant
 
 from brevitas.core.quant.binary import BinaryQuant
 from brevitas.core.scaling import ConstScaling
 
-from common import CommonActQuant
-from common import CommonWeightQuant
-from shift_batchnorm import ShiftBatchNorm
+from common import *
 
 class QuantNet(Module):
     def __init__(self):
         super(QuantNet, self).__init__()
 
-        self.fc1 = QuantLinear(784, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn1 = nn.BatchNorm1d(1024)
+        self.fc1 = QuantLinear(784, 128, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        # self.bn1 = nn.BatchNorm1d(128)
         #self.bn1 = ShiftBatchNorm(1024)
 
-        self.fc2 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn2 = nn.BatchNorm1d(1024)
+        self.fc2 = QuantLinear(128, 128, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        # self.bn2 = nn.BatchNorm1d(1024)
         #self.bn2 = ShiftBatchNorm(1024)
 
-        self.fc3 = QuantLinear(1024, 1024, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn3 = nn.BatchNorm1d(1024)
-        #self.bn3 = ShiftBatchNorm(1024)
+        self.fc3 = QuantLinear(128, 128, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        # self.bn3 = nn.BatchNorm1d(128)
+        #self.bn3 = ShiftBatchNorm(128)
 
-        self.fc4 = QuantLinear(1024, 10, weight_quant=CommonWeightQuant, bias=False, weight_bit_width=1)
-        self.bn4 = nn.BatchNorm1d(10)
-        #self.bn4 = ShiftBatchNorm(10)
+        self.fc4 = QuantLinear(128, 10, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        # self.bn4 = nn.BatchNorm1d(128)
+        #self.bn4 = ShiftBatchNorm(128)
         
-        self.quant_identity = QuantIdentity(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
-        self.quant_hardtanh = QuantHardTanh(act_quant=CommonActQuant, return_quant_tensor = True, bit_width=1)
+        self.quant_identity = QuantIdentity(act_quant=Int8ActPerTensorFixedPoint, return_quant_tensor = True)
+        self.quant_act = QuantSigmoid(act_quant=Int8ActPerTensorFixedPoint, return_quant_tensor = True)
         self.dropout = nn.Dropout(p=0.0)
 
     def forward(self, x):
@@ -54,23 +54,22 @@ class QuantNet(Module):
         # x = self.dropout(x)
 
         x = self.fc1(x)
-        x = self.bn1(x)
-        x = self.quant_hardtanh(x)
+        # x = self.bn1(x)
+        x = self.quant_act(x)
         # x = self.dropout(x)
 
         x = self.fc2(x)
-        x = self.bn2(x)
-        x = self.quant_hardtanh(x)
+        # x = self.bn2(x)
+        x = self.quant_act(x)
         # x = self.dropout(x)
 
         x = self.fc3(x)
-        x = self.bn3(x)
-        x = self.quant_hardtanh(x)
+        # x = self.bn3(x)
+        x = self.quant_act(x)
         # x = self.dropout(x)
 
         x = self.fc4(x)
-        x = self.bn4(x)
-
+        # x = self.bn4(x)
         output = F.log_softmax(x, dim=1)
         return output
 
@@ -79,13 +78,6 @@ def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
-
-        # target = target.unsqueeze(1)
-        # target_onehot = torch.Tensor(target.size(0), 10).to(device, non_blocking=True)
-        # target_onehot.fill_(-1)
-        # target_onehot.scatter_(1, target, 1)
-        # target = target.squeeze()
-        # target_var = target_onehot
 
         optimizer.zero_grad()
         output = model(data)
