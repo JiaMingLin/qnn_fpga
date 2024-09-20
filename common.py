@@ -1,134 +1,140 @@
 import torch
 from dependencies import value
 
+from brevitas.inject.enum import *
 from brevitas.core.bit_width import BitWidthImplType
 from brevitas.core.quant import QuantType
 from brevitas.core.restrict_val import FloatToIntImplType
 from brevitas.core.restrict_val import RestrictValueType
 from brevitas.core.scaling import ScalingImplType
 from brevitas.core.zero_point import ZeroZeroPoint
-from brevitas.inject import ExtendedInjector
-from brevitas.quant.solver import ActQuantSolver
-from brevitas.quant.solver import WeightQuantSolver
-
-from brevitas.inject import ExtendedInjector
+from brevitas.quant.solver import WeightQuantSolver, ActQuantSolver
 from brevitas.quant.base import *
+from brevitas.core.function_wrapper.ops_ste import CeilSte
 
-from brevitas.quant.scaled_int import Int8WeightPerTensorFloat, \
-    Int8ActPerTensorFloat, \
-    Uint8ActPerTensorFloat, \
-    Int8Bias, \
+from brevitas.quant.scaled_int import Int8Bias, \
     Int16Bias, \
     Int32Bias
-    
-from brevitas.quant.fixed_point import Int8WeightPerTensorFixedPoint, \
-    Int8ActPerTensorFixedPoint, \
-    Uint8ActPerTensorFixedPoint
-
-from brevitas.quant.none import NoneWeightQuant, \
-    NoneActQuant, \
-    NoneBiasQuant
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-class CommonQuant(ExtendedInjector):
-    bit_width_impl_type = BitWidthImplType.CONST
-    scaling_impl_type = ScalingImplType.CONST
-    restrict_scaling_type = RestrictValueType.FP
-    zero_point_impl = ZeroZeroPoint
-    float_to_int_impl_type = FloatToIntImplType.ROUND
+"""
+Float Scaling Factor
+"""
+class Int8WeightPerTensorFloatScratch(WeightQuantSolver):
+    quant_type = QuantType.INT # integer quantization
+    bit_width_impl_type = BitWidthImplType.CONST # constant bit width
+    float_to_int_impl_type = FloatToIntImplType.ROUND # round to nearest
+    scaling_impl_type = ScalingImplType.STATS # scale based on statistics
+    scaling_stats_op = StatsOp.MAX # scale statistics is the absmax value
+    restrict_scaling_type = RestrictValueType.FP # scale factor is a floating point value
+    scaling_per_output_channel = False # scale is per tensor
+    bit_width = 8 # bit width is 8
+    signed = True # quantization range is signed
+    narrow_range = True # quantization range is [-127,127] rather than [-128, 127]
+    zero_point_impl = ZeroZeroPoint # zero point is 0.
+
+class Int4WeightPerTensorFloatScratch(Int8WeightPerTensorFloatScratch):
+    bit_width=4
+
+class Int2WeightPerTensorFloatScratch(Int8WeightPerTensorFloatScratch):
+    bit_width=2
+
+class Int8ActPerTensorFloatScratch(ActQuantSolver):
+    quant_type = QuantType.INT # integer quantization
+    bit_width_impl_type = BitWidthImplType.CONST # constant bit width
+    float_to_int_impl_type = FloatToIntImplType.ROUND # round to nearest
+    scaling_impl_type = ScalingImplType.PARAMETER_FROM_STATS # scale is a parameter initialized from statistics
+    scaling_stats_op = StatsOp.PERCENTILE # scale statistics is a percentile of the abs value
+    high_percentile_q = 99.999 # percentile is 99.999
+    collect_stats_steps = 300  # statistics are collected for 300 forward steps before switching to a learned parameter
+    restrict_scaling_type = RestrictValueType.FP # scale is a floating-point value
+    scaling_per_output_channel = False  # scale is per tensor
+    bit_width = 8  # bit width is 8
+    signed = True # quantization range is signed
+    narrow_range = False # quantization range is [-128, 127] rather than [-127, 127]
+    zero_point_impl = ZeroZeroPoint # zero point is 0.
+
+class Int16ActPerTensorFloatScratch(Int8ActPerTensorFloatScratch):
+    bit_width=16
+
+class Int4ActPerTensorFloatScratch(Int8ActPerTensorFloatScratch):
+    bit_width=4
+
+class Int2ActPerTensorFloatScratch(Int8ActPerTensorFloatScratch):
+    bit_width=2
+
+class Uint8ActPerTensorFloatScratch(Int8ActPerTensorFloatScratch):
+    signed = False
+
+class Uint4ActPerTensorFloatScratch(Uint8ActPerTensorFloatScratch):
+    bit_width=4
+
+class Uint2ActPerTensorFloatScratch(Uint8ActPerTensorFloatScratch):
+    bit_width=2
+
+
+"""
+Power of Two scaling factor(Fixed Point)
+"""
+class Int8WeightPerTensorFixedPointScratch(Int8WeightPerTensorFloatScratch):
     scaling_per_output_channel = False
-    narrow_range = True
-    signed = True
+    restrict_scaling_type = RestrictValueType.POWER_OF_TWO
+    bit_width = 8
+    restrict_value_float_to_int_impl = CeilSte
 
-    @value
-    def quant_type(bit_width):
-        if bit_width is None:
-            return QuantType.FP
-        elif bit_width == 1:
-            return QuantType.BINARY
-        else:
-            return QuantType.INT
+class Int4WeightPerTensorFixedPointScratch(Int8WeightPerTensorFixedPointScratch):
+    bit_width = 4
+
+class Int2WeightPerTensorFixedPointScratch(Int8WeightPerTensorFixedPointScratch):
+    bit_width = 2
+
+class Int8ActPerTensorFixedPointScratch(Int8ActPerTensorFloatScratch):
+    scaling_per_output_channel = False
+    restrict_scaling_type = RestrictValueType.POWER_OF_TWO
+    bit_width = 8
+    restrict_value_float_to_int_impl = CeilSte
+
+class Int4ActPerTensorFixedPointScratch(Int8ActPerTensorFixedPointScratch):
+    bit_width = 4
+
+class Int2ActPerTensorFixedPointScratch(Int8ActPerTensorFixedPointScratch):
+    bit_width = 2
+    
+class Uint8ActPerTensorFixedPointScratch(Int8ActPerTensorFixedPointScratch):
+    signed = False
+
+class Uint4ActPerTensorFixedPointScratch(Int8ActPerTensorFixedPointScratch):
+    signed = False
+    bit_width = 4
+
+class Uint2ActPerTensorFixedPointScratch(Int8ActPerTensorFixedPointScratch):
+    signed = False
+    bit_width = 2
 
 
-class CommonWeightQuant(CommonQuant, WeightQuantSolver):
-    scaling_const = 1.0
-
-
-class CommonActQuant(CommonQuant, ActQuantSolver):
-    min_val = -1.0
-    max_val = 1.0
-
-class Int2WeightPerTensorFloat(Int8WeightPerTensorFloat):
-    bit_width=2
-
-class Int2ActPerTensorFloat(Int8ActPerTensorFloat):
-    bit_width=2
-
-class Uint2ActPerTensorFloat(Uint8ActPerTensorFloat):
-    bit_width=2
-
-class Int4WeightPerTensorFloat(Int8WeightPerTensorFloat):
-    bit_width=4
-
-class Int4ActPerTensorFloat(Int8ActPerTensorFloat):
-    bit_width=4
-
-class Uint4ActPerTensorFloat(Uint8ActPerTensorFloat):
-    bit_width=4
-
-class Int16ActPerTensorFloat(Int8ActPerTensorFloat):
-    bit_width=16
-
-class Int4WeightPerTensorFixedPoint(Int8WeightPerTensorFixedPoint):
-    bit_width=4
-
-class Int2WeightPerTensorFixedPoint(Int8WeightPerTensorFixedPoint):
-    bit_width=2
-
-class Int32ActPerTensorFixedPoint(Int8ActPerTensorFixedPoint):
-    bit_width=32
-
-class Int16ActPerTensorFixedPoint(Int8ActPerTensorFixedPoint):
-    bit_width=16
-
-class Int4ActPerTensorFixedPoint(Int8ActPerTensorFixedPoint):
-    bit_width=4
-
-class Int2ActPerTensorFixedPoint(Int8ActPerTensorFixedPoint):
-    bit_width=2
-
-class Uint4ActPerTensorFixedPoint(Uint8ActPerTensorFixedPoint):
-    bit_width=4
-
-class Uint2ActPerTensorFixedPoint(Uint8ActPerTensorFixedPoint):
-    bit_width=2
-
-weight_quantizer = {'int8': Int8WeightPerTensorFloat,
-                    'int4': Int4WeightPerTensorFloat,
-                    'int2': Int2WeightPerTensorFloat,
-                    'fxp8': Int8WeightPerTensorFixedPoint,
-                    'fxp4': Int4WeightPerTensorFixedPoint,
-                    'fxp2': Int2WeightPerTensorFixedPoint}
+weight_quantizer = {'int8': Int8WeightPerTensorFloatScratch,
+                    'int4': Int4WeightPerTensorFloatScratch,
+                    'int2': Int2WeightPerTensorFloatScratch,
+                    'fxp8': Int8WeightPerTensorFixedPointScratch,
+                    'fxp4': Int4WeightPerTensorFixedPointScratch,
+                    'fxp2': Int2WeightPerTensorFixedPointScratch}
 
 act_quantizer = {
-                'int16': Int16ActPerTensorFloat,
-                'int8': Int8ActPerTensorFloat,
-                'uint8': Uint8ActPerTensorFloat,
-                'int4': Int4ActPerTensorFloat,
-                'uint4': Uint4ActPerTensorFloat,
-                'int2': Int2ActPerTensorFloat,
-                'uint2': Uint2ActPerTensorFloat,
-                'fxp32': Int32ActPerTensorFixedPoint,
-                'fxp16': Int16ActPerTensorFixedPoint,
-                'fxp8': Int8ActPerTensorFixedPoint,
-                'fxp4': Int4ActPerTensorFixedPoint,
-                'fxp2': Int2ActPerTensorFixedPoint,
-                'ufxp8': Uint8ActPerTensorFixedPoint,
-                'ufxp4': Uint4ActPerTensorFixedPoint,
-                'ufxp2': Uint2ActPerTensorFixedPoint
-                }
+                'int16': Int16ActPerTensorFloatScratch,
+                'int8': Int8ActPerTensorFloatScratch,
+                'int4': Int4ActPerTensorFloatScratch,
+                'int2': Int2ActPerTensorFloatScratch,
+                'uint8': Uint8ActPerTensorFloatScratch,
+                'uint4': Uint4ActPerTensorFloatScratch,
+                'uint2': Uint2ActPerTensorFloatScratch,
+                'fxp8': Int8ActPerTensorFixedPointScratch,
+                'fxp4': Int4ActPerTensorFixedPointScratch,
+                'fxp2': Int2ActPerTensorFixedPointScratch,
+                'ufxp8': Uint8ActPerTensorFixedPointScratch,
+                'ufxp4': Uint4ActPerTensorFixedPointScratch,
+                'ufxp2': Uint2ActPerTensorFixedPointScratch}
 
 bias_quantizer = {'int8': Int8Bias,
                   'int16': Int16Bias,

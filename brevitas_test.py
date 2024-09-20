@@ -15,11 +15,6 @@ from torch.nn import Module
 # import brevitas.nn as qnn
 from brevitas.nn import QuantLinear, QuantHardTanh, QuantIdentity
 from brevitas.nn import QuantSigmoid
-from brevitas.nn import QuantTanh
-from brevitas.quant import Int8Bias as BiasQuant
-
-from brevitas.core.quant.binary import BinaryQuant
-from brevitas.core.scaling import ConstScaling
 
 from common import *
 
@@ -27,24 +22,24 @@ class QuantNet(Module):
     def __init__(self):
         super(QuantNet, self).__init__()
 
-        self.fc1 = QuantLinear(784, 128, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        self.fc1 = QuantLinear(784, 128, weight_quant=Int8WeightPerTensorFloatScratch, bias=Int32Bias)
         # self.bn1 = nn.BatchNorm1d(128)
         #self.bn1 = ShiftBatchNorm(1024)
 
-        self.fc2 = QuantLinear(128, 128, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        self.fc2 = QuantLinear(128, 128, weight_quant=Int8WeightPerTensorFloatScratch, bias=Int32Bias)
         # self.bn2 = nn.BatchNorm1d(1024)
         #self.bn2 = ShiftBatchNorm(1024)
 
-        self.fc3 = QuantLinear(128, 128, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        self.fc3 = QuantLinear(128, 128, weight_quant=Int8WeightPerTensorFloatScratch, bias=Int32Bias)
         # self.bn3 = nn.BatchNorm1d(128)
         #self.bn3 = ShiftBatchNorm(128)
 
-        self.fc4 = QuantLinear(128, 10, weight_quant=Int8WeightPerTensorFixedPoint, bias=Int32Bias)
+        self.fc4 = QuantLinear(128, 10, weight_quant=Int8WeightPerTensorFloatScratch, bias=Int32Bias)
         # self.bn4 = nn.BatchNorm1d(128)
         #self.bn4 = ShiftBatchNorm(128)
         
-        self.quant_identity = QuantIdentity(act_quant=Int8ActPerTensorFixedPoint, return_quant_tensor = True)
-        self.quant_act = QuantSigmoid(act_quant=Int8ActPerTensorFixedPoint, return_quant_tensor = True)
+        self.quant_identity = QuantIdentity(act_quant=Int8ActPerTensorFloatScratch, return_quant_tensor = True)
+        self.quant_act = QuantSigmoid(act_quant=Int8ActPerTensorFloatScratch, return_quant_tensor = True)
         self.dropout = nn.Dropout(p=0.0)
 
     def forward(self, x):
