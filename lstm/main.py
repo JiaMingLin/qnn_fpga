@@ -31,6 +31,7 @@ def main():
     i_bit = args.i_bit
     o_bit = args.o_bit
     r_bit = args.r_bit
+    h_bit = args.h_bit
     no_brevitas = args.no_brevitas
 
     '''
@@ -72,7 +73,7 @@ def main():
     model = SeqModel(input_size, hidden_size, output_size = output_size,
                       num_layers = num_layers,
                       quant = quant, 
-                      w_bit=w_bit, a_bit=a_bit, i_bit=i_bit, o_bit=o_bit, r_bit=r_bit, acc_bit=acc_bit,
+                      w_bit=w_bit, a_bit=a_bit, i_bit=i_bit, o_bit=o_bit, r_bit=r_bit, h_bit=h_bit, acc_bit=acc_bit,
                       no_brevitas = no_brevitas)
 
     #######################
