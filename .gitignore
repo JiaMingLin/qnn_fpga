@@ -10,3 +10,4 @@ __pycache__/*
 *byte
 raw/*
 processed/*
+exp_*
