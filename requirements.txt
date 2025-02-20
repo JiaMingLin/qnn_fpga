@@ -1,0 +1,10 @@
+tensorflow==2.14
+qkeras
+fxpmath
+gdown
+pandas
+matplotlib
+pydot
+graphviz
+hls4ml
+hls4ml[profiling]
