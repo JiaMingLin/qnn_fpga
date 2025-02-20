@@ -4,6 +4,7 @@ __pycache__/*
 .ipynb_checkpoints
 .ipynb_checkpoints/*
 *.npy
+*.zip
 *.txt
 *.gz
 *.pyc

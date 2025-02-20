@@ -87,7 +87,7 @@ class all_callbacks:
         )
 
         self.modelbestcheck = ModelCheckpoint(
-            outputDir + "/KERAS_check_best_model.keras", monitor='val_loss', verbose=1, save_best_only=True
+            outputDir + "/KERAS_check_best_model.h5",save_format='h5', monitor='val_loss', verbose=1, save_best_only=True
         )
 
         self.modelbestcheckweights = ModelCheckpoint(
